@@ -361,11 +361,18 @@
         }
 
         function updateAuthUI(user) {
+            authContainer.innerHTML = ''; // Clear previous state
             if (user && isAuthorized) {
-                authContainer.innerHTML = `<div id="user-info"><img src="${user.photoURL}" alt="${user.displayName}" /><span class="font-bold text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button></div>`;
+                const userInfo = document.createElement('div');
+                userInfo.id = 'user-info';
+                userInfo.innerHTML = `<img src="${user.photoURL}" alt="${user.displayName}" /><span class="font-bold text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button>`;
+                authContainer.appendChild(userInfo);
                 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
             } else {
-                authContainer.innerHTML = `<button id="login-btn">Login with GitHub</button>`;
+                const loginBtn = document.createElement('button');
+                loginBtn.id = 'login-btn';
+                loginBtn.innerHTML = 'Login with GitHub';
+                authContainer.appendChild(loginBtn);
                 document.getElementById('login-btn').addEventListener('click', () => signInWithPopup(auth, githubProvider));
             }
         }
@@ -380,18 +387,12 @@
             
             isAuthorized = true; 
             
-            updateAuthUI(user);
             rerender();
         }
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                checkAuthorization(user);
-            } else {
-                isAuthorized = false;
-                updateAuthUI(null);
-                rerender();
-            }
+            updateAuthUI(user); // Update UI immediately
+            checkAuthorization(user);
         });
         
         function saveDataToFirestore() {
@@ -434,10 +435,23 @@
                     { label: 'Description', key: 'description' }, { label: 'Duration', key: 'duration' }
                 ];
                 fields.forEach(field => {
-                    contentDiv.innerHTML += `<div class="field-group"><label class="field-label">${field.label}</label><div class="editable-field" contenteditable="${isAuthorized}" data-field="${field.key}">${nodeData[field.key] || ''}</div></div>`;
+                    const fieldGroup = document.createElement('div');
+                    fieldGroup.className = 'field-group';
+                    fieldGroup.innerHTML = `<label class="field-label">${field.label}</label><div class="editable-field" contenteditable="${isAuthorized}" data-field="${field.key}">${nodeData[field.key] || ''}</div>`;
+                    contentDiv.appendChild(fieldGroup);
                 });
                 (nodeData.customFields || []).forEach(field => {
-                    contentDiv.innerHTML += `<div class="custom-field-group" data-field-id="${field.id}"><div class="editable-field" contenteditable="${isAuthorized}" data-field="label" style="width: 80px; flex-shrink: 0; font-weight: 600; color: #64748b;">${field.label}:</div><div class="editable-field" contenteditable="${isAuthorized}" data-field="value" style="flex-grow: 1;">${field.value}</div>${isAuthorized ? `<button class="remove-btn" onclick="removeCustomField('${nodeData.id}', '${field.id}')">-</button>` : ''}</div>`;
+                    const fieldGroup = document.createElement('div');
+                    fieldGroup.className = 'custom-field-group';
+                    fieldGroup.dataset.fieldId = field.id;
+                    fieldGroup.innerHTML = `<div class="editable-field" contenteditable="${isAuthorized}" data-field="label" style="width: 80px; flex-shrink: 0; font-weight: 600; color: #64748b;">${field.label}:</div><div class="editable-field" contenteditable="${isAuthorized}" data-field="value" style="flex-grow: 1;">${field.value}</div>`;
+                    if(isAuthorized) {
+                        const removeBtn = document.createElement('button');
+                        removeBtn.className = 'remove-btn'; removeBtn.textContent = '-';
+                        removeBtn.onclick = () => removeCustomField(nodeData.id, field.id);
+                        fieldGroup.appendChild(removeBtn);
+                    }
+                    contentDiv.appendChild(fieldGroup);
                 });
                 nodeEl.appendChild(contentDiv);
                 
@@ -511,7 +525,17 @@
                 contentDiv.innerHTML = `<div class="field-group"><div class="editable-field text-lg font-bold" contenteditable="${isAuthorized}" data-field="cardTitle">${nodeData.cardTitle || 'Card Title'}</div></div>`;
 
                 (nodeData.lines || []).forEach(line => {
-                    contentDiv.innerHTML += `<div class="custom-field-group" data-line-id="${line.id}"><div class="editable-field" contenteditable="${isAuthorized}" data-field="text" style="flex-grow: 1;">${line.text}</div>${isAuthorized ? `<button class="remove-btn" onclick="removeTrackLine('${nodeData.id}', '${line.id}')">-</button>` : ''}</div>`;
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'custom-field-group';
+                    lineEl.dataset.lineId = line.id;
+                    lineEl.innerHTML = `<div class="editable-field" contenteditable="${isAuthorized}" data-field="text" style="flex-grow: 1;">${line.text}</div>`;
+                    if (isAuthorized) {
+                        const removeBtn = document.createElement('button');
+                        removeBtn.className = 'remove-btn'; removeBtn.textContent = '-';
+                        removeBtn.onclick = () => removeTrackLine(nodeData.id, line.id);
+                        lineEl.appendChild(removeBtn);
+                    }
+                    contentDiv.appendChild(lineEl);
                 });
 
                 if (isAuthorized) {
@@ -587,7 +611,6 @@
             if (node && node.type === 'track') {
                 if (!node.lines) node.lines = [];
                 node.lines.push({ id: `line-${Date.now()}`, text: 'New editable line' });
-                rerender();
                 saveDataToFirestore();
             }
         }
@@ -596,7 +619,6 @@
             const node = findNodeById(mindmapData, nodeId);
             if (node && node.lines) {
                 node.lines = node.lines.filter(l => l.id !== lineId);
-                rerender();
                 saveDataToFirestore();
             }
         }
@@ -606,7 +628,6 @@
             if (node && node.type === 'sub-level') {
                 if (!node.customFields) node.customFields = [];
                 node.customFields.push({ id: `field-${Date.now()}`, label: 'New Field', value: '...' });
-                rerender();
                 saveDataToFirestore();
             }
         }
@@ -615,7 +636,6 @@
             const node = findNodeById(mindmapData, nodeId);
             if (node && node.customFields) {
                 node.customFields = node.customFields.filter(f => f.id !== fieldId);
-                rerender();
                 saveDataToFirestore();
             }
         }
