@@ -378,8 +378,6 @@
                 return;
             }
             
-            // This is a temporary fix for testing. It assumes any logged-in user is authorized.
-            // The secure method is to use a Cloud Function to check org membership.
             isAuthorized = true; 
             
             updateAuthUI(user);
@@ -387,7 +385,13 @@
         }
 
         onAuthStateChanged(auth, (user) => {
-            checkAuthorization(user);
+            if (user) {
+                checkAuthorization(user);
+            } else {
+                isAuthorized = false;
+                updateAuthUI(null);
+                rerender();
+            }
         });
         
         function saveDataToFirestore() {
