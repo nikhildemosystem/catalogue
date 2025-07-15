@@ -363,7 +363,7 @@
         function updateAuthUI(user) {
             authContainer.innerHTML = '';
             if (user) {
-                 if (isAuthorized) {
+                if (isAuthorized) {
                     authContainer.innerHTML = `<div id="user-info"><img src="${user.photoURL}" alt="${user.displayName}" /><span class="font-bold text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button></div>`;
                     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
                 } else {
@@ -718,14 +718,11 @@
         rerender();
         window.addEventListener('resize', rerender);
 
-        container.addEventListener('input', (e) => {
-            if (isAuthorized) {
-                const field = e.target.closest('.editable-field');
-                if (field) {
-                     saveDataToFirestore();
-                }
+        container.addEventListener('blur', (e) => {
+            if (isAuthorized && e.target.hasAttribute('contenteditable')) {
+                saveDataToFirestore();
             }
-        });
+        }, true);
     </script>
 </body>
 </html>
