@@ -390,8 +390,9 @@
         }
 
         onAuthStateChanged(auth, (user) => {
-            updateAuthUI(user);
-            checkAuthorization(user);
+            checkAuthorization(user).then(() => {
+                updateAuthUI(user);
+            });
         });
         
         function saveDataToFirestore() {
