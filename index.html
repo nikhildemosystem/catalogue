@@ -362,17 +362,17 @@
 
         function updateAuthUI(user) {
             authContainer.innerHTML = ''; // Clear previous state
-            if (user && isAuthorized) {
-                const userInfo = document.createElement('div');
-                userInfo.id = 'user-info';
-                userInfo.innerHTML = `<img src="${user.photoURL}" alt="${user.displayName}" /><span class="font-bold text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button>`;
-                authContainer.appendChild(userInfo);
-                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            if (user) {
+                 if (isAuthorized) {
+                    authContainer.innerHTML = `<div id="user-info"><img src="${user.photoURL}" alt="${user.displayName}" /><span class="font-bold text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button></div>`;
+                    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+                } else {
+                    // Show user info but also a logout button if they are not authorized
+                    authContainer.innerHTML = `<div id="user-info"><img src="${user.photoURL}" alt="${user.displayName}" /><span class="text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button></div>`;
+                    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+                }
             } else {
-                const loginBtn = document.createElement('button');
-                loginBtn.id = 'login-btn';
-                loginBtn.innerHTML = 'Login with GitHub';
-                authContainer.appendChild(loginBtn);
+                authContainer.innerHTML = `<button id="login-btn">Login with GitHub</button>`;
                 document.getElementById('login-btn').addEventListener('click', () => signInWithPopup(auth, githubProvider));
             }
         }
@@ -391,7 +391,7 @@
         }
 
         onAuthStateChanged(auth, (user) => {
-            updateAuthUI(user); // Update UI immediately
+            updateAuthUI(user);
             checkAuthorization(user);
         });
         
@@ -577,7 +577,6 @@
             const wasCollapsed = clickedNode.isCollapsed;
             siblings.forEach(node => { if (node.id !== nodeId) node.isCollapsed = true; });
             clickedNode.isCollapsed = !wasCollapsed;
-            rerender();
             saveDataToFirestore();
         }
 
@@ -586,14 +585,12 @@
             const newClass = trackClasses[mindmapData.children.length % trackClasses.length];
             const newNode = { id: `node-${Date.now()}`, text: 'New Track', type: 'track', class: newClass, isCollapsed: true, cardTitle: 'New Track Overview', lines: [], children: [] };
             mindmapData.children.push(newNode);
-            rerender();
             saveDataToFirestore();
         }
 
         function addLevelNode(parentNodeData) {
             const newNode = { id: `node-${Date.now()}`, text: 'New Level', type: 'level', isCollapsed: true, children: [] };
             parentNodeData.children.push(newNode);
-            rerender();
             saveDataToFirestore();
         }
 
@@ -602,7 +599,6 @@
             const newNode = { id: `node-${Date.now()}`, type: 'sub-level', title: `${parentNodeData.text}.${subLevelCount}`, url: 'https://example.com', description: 'Editable description', duration: '1h', customFields: [], children: [] };
             parentNodeData.children.push(newNode);
             parentNodeData.isCollapsed = false;
-            rerender();
             saveDataToFirestore();
         }
 
@@ -644,7 +640,6 @@
             const parentNode = findNodeById(mindmapData, parentId);
             if (parentNode) {
                 parentNode.children = parentNode.children.filter(child => child.id !== nodeId);
-                rerender();
                 saveDataToFirestore();
             }
         }
