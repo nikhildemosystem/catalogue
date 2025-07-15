@@ -361,13 +361,12 @@
         }
 
         function updateAuthUI(user) {
-            authContainer.innerHTML = ''; // Clear previous state
+            authContainer.innerHTML = '';
             if (user) {
                  if (isAuthorized) {
                     authContainer.innerHTML = `<div id="user-info"><img src="${user.photoURL}" alt="${user.displayName}" /><span class="font-bold text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button></div>`;
                     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
                 } else {
-                    // Show user info but also a logout button if they are not authorized
                     authContainer.innerHTML = `<div id="user-info"><img src="${user.photoURL}" alt="${user.displayName}" /><span class="text-slate-700">${user.displayName}</span><button class="remove-btn !ml-2" id="logout-btn">-</button></div>`;
                     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
                 }
