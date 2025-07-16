@@ -379,7 +379,7 @@
                         const fieldGroup = document.createElement('div');
                         fieldGroup.className = 'custom-field-group';
                         fieldGroup.dataset.fieldId = field.id;
-                        fieldGroup.innerHTML = `<div class="editable-field" contenteditable="true" data-field="label" style="width: 80px; flex-shrink: 0; font-weight: 600; color: #64748b;">${field.label}:</div><div class="editable-field" contenteditable="true" data-field="value" style="flex-grow: 1;">${field.value}</div><button class="remove-btn" onclick="syncEditsToData(); removeCustomField(event, '${nodeData.id}', '${field.id}')">-</button>`;
+                        fieldGroup.innerHTML = `<div class="editable-field" contenteditable="true" data-field="label" style="width: 80px; flex-shrink: 0; font-weight: 600; color: #64748b;">${field.label}:</div><div class="editable-field" contenteditable="true" data-field="value" style="flex-grow: 1;">${field.value}</div><button class="remove-btn" onclick="removeCustomField(event, '${nodeData.id}', '${field.id}')">-</button>`;
                         contentDiv.appendChild(fieldGroup);
                     });
                     nodeEl.appendChild(contentDiv);
@@ -388,10 +388,10 @@
                     actionDiv.className = 'sub-level-actions';
                     const addFieldBtn = document.createElement('button');
                     addFieldBtn.className = 'add-btn'; addFieldBtn.textContent = '+';
-                    addFieldBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); addCustomField(nodeData.id); };
+                    addFieldBtn.onclick = (e) => { e.stopPropagation(); addCustomField(nodeData.id); };
                     const removeNodeBtn = document.createElement('button');
                     removeNodeBtn.className = 'remove-btn'; removeNodeBtn.textContent = '-';
-                    removeNodeBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); removeNode(nodeData.id, parentData.id); };
+                    removeNodeBtn.onclick = (e) => { e.stopPropagation(); removeNode(nodeData.id, parentData.id); };
                     actionDiv.appendChild(addFieldBtn);
                     actionDiv.appendChild(removeNodeBtn);
                     nodeEl.appendChild(actionDiv);
@@ -406,22 +406,22 @@
 
                 if (nodeData.type === 'central') {
                     const addBtn = document.createElement('button'); addBtn.className = 'add-btn'; addBtn.textContent = '+';
-                    addBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); addTrackNode(); };
+                    addBtn.onclick = (e) => { e.stopPropagation(); addTrackNode(); };
                     nodeActions.appendChild(addBtn);
                 }
                 if (nodeData.type === 'track') {
                     const addBtn = document.createElement('button'); addBtn.className = 'add-btn'; addBtn.textContent = '+';
-                    addBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); addLevelNode(nodeData); };
+                    addBtn.onclick = (e) => { e.stopPropagation(); addLevelNode(nodeData); };
                     const removeBtn = document.createElement('button'); removeBtn.className = 'remove-btn'; removeBtn.textContent = '-';
-                    removeBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); removeNode(nodeData.id, parentData.id); };
+                    removeBtn.onclick = (e) => { e.stopPropagation(); removeNode(nodeData.id, parentData.id); };
                     nodeActions.appendChild(addBtn);
                     nodeActions.appendChild(removeBtn);
                 }
                 if (nodeData.type === 'level') {
                     const addBtn = document.createElement('button'); addBtn.className = 'add-btn'; addBtn.textContent = '+';
-                    addBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); addSubLevelNode(nodeData); };
+                    addBtn.onclick = (e) => { e.stopPropagation(); addSubLevelNode(nodeData); };
                     const removeBtn = document.createElement('button'); removeBtn.className = 'remove-btn'; removeBtn.textContent = '-';
-                    removeBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); removeNode(nodeData.id, parentData.id); };
+                    removeBtn.onclick = (e) => { e.stopPropagation(); removeNode(nodeData.id, parentData.id); };
                     nodeActions.appendChild(addBtn);
                     nodeActions.appendChild(removeBtn);
                 }
@@ -459,7 +459,7 @@
                         const lineEl = document.createElement('div');
                         lineEl.className = 'custom-field-group';
                         lineEl.dataset.lineId = line.id;
-                        lineEl.innerHTML = `<div class="editable-field" contenteditable="true" data-field="text" style="flex-grow: 1;">${line.text}</div><button class="remove-btn" onclick="syncEditsToData(); removeTrackLine('${nodeData.id}', '${line.id}')">-</button>`;
+                        lineEl.innerHTML = `<div class="editable-field" contenteditable="true" data-field="text" style="flex-grow: 1;">${line.text}</div><button class="remove-btn" onclick="removeTrackLine('${nodeData.id}', '${line.id}')">-</button>`;
                         contentDiv.appendChild(lineEl);
                     });
 
@@ -467,7 +467,7 @@
                     actionDiv.className = 'card-actions';
                     const addFieldBtn = document.createElement('button');
                     addFieldBtn.className = 'add-btn'; addFieldBtn.textContent = '+';
-                    addFieldBtn.onclick = (e) => { e.stopPropagation(); syncEditsToData(); addTrackLine(nodeData.id); };
+                    addFieldBtn.onclick = (e) => { e.stopPropagation(); addTrackLine(nodeData.id); };
                     actionDiv.appendChild(addFieldBtn);
                     
                     detailCard.appendChild(contentDiv);
