@@ -215,12 +215,6 @@
             </svg>
             Overview
         </button>
-        <button id="reset-btn" class="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg ml-2 hover:bg-gray-300 transition-colors">Reset</button>
-        <button id="export-btn" class="bg-blue-200 text-blue-800 px-3 py-1 rounded-lg ml-2 hover:bg-blue-300 transition-colors">Export</button>
-        <label class="ml-2 bg-green-200 text-green-800 px-3 py-1 rounded-lg cursor-pointer hover:bg-green-300 transition-colors">
-            Import <input type="file" id="import-input" accept=".json" class="hidden">
-        </label>
-
     </header>
 
     <main>
@@ -480,29 +474,6 @@
             }
             
             function findNodeById(data, id) {
-
-function syncEditsToData() {
-    document.querySelectorAll('[contenteditable][data-field]').forEach(el => {
-        const field = el.dataset.field;
-        const nodeWrapper = el.closest('.node-wrapper');
-        if (!nodeWrapper) return;
-        const nodeId = nodeWrapper.dataset.id;
-        const node = findNodeById(mindmapData, nodeId);
-        if (!node) return;
-
-        const parentGroup = el.closest('.custom-field-group');
-        if (parentGroup?.dataset?.lineId) {
-            const line = (node.lines || []).find(l => l.id === parentGroup.dataset.lineId);
-            if (line) line[field] = el.innerText.trim();
-        } else if (parentGroup?.dataset?.fieldId) {
-            const fieldObj = (node.customFields || []).find(f => f.id === parentGroup.dataset.fieldId);
-            if (fieldObj) fieldObj[field] = el.innerText.trim();
-        } else {
-            node[field] = el.innerText.trim();
-        }
-    });
-}
-
                 if (data.id === id) return data;
                 for (const child of data.children || []) {
                     const found = findNodeById(child, id);
@@ -531,10 +502,8 @@ function syncEditsToData() {
                 });
                 clickedNode.isCollapsed = !wasCollapsed;
 
-                syncEditsToData();
-syncEditsToData();
-saveDataToLocalStorage();
-rerender();
+                rerender();
+                saveDataToLocalStorage();
             }
 
             function addTrackNode() {
@@ -545,19 +514,15 @@ rerender();
                     cardTitle: 'New Track Overview', lines: [], children: []
                 };
                 mindmapData.children.push(newNode);
-                syncEditsToData();
-syncEditsToData();
-saveDataToLocalStorage();
-rerender();
+                rerender();
+                saveDataToLocalStorage();
             }
 
             function addLevelNode(parentNodeData) {
                 const newNode = { id: `node-${nodeCounter++}`, text: 'New Level', type: 'level', isCollapsed: true, children: [] };
                 parentNodeData.children.push(newNode);
-                syncEditsToData();
-syncEditsToData();
-saveDataToLocalStorage();
-rerender();
+                rerender();
+                saveDataToLocalStorage();
             }
 
             function addSubLevelNode(parentNodeData) {
@@ -565,10 +530,8 @@ rerender();
                 const newNode = { id: `node-${nodeCounter++}`, type: 'sub-level', title: `${parentNodeData.text}.${subLevelCount}`, url: 'https://example.com', description: 'Editable description', duration: '1h', customFields: [], children: [] };
                 parentNodeData.children.push(newNode);
                 parentNodeData.isCollapsed = false;
-                syncEditsToData();
-syncEditsToData();
-saveDataToLocalStorage();
-rerender();
+                rerender();
+                saveDataToLocalStorage();
             }
 
             window.addTrackLine = function(nodeId) {
@@ -576,9 +539,8 @@ rerender();
                 if (node && node.type === 'track') {
                     if (!node.lines) node.lines = [];
                     node.lines.push({ id: `line-${Date.now()}`, text: 'New editable line' });
-                    syncEditsToData();
-saveDataToLocalStorage();
-rerender(); // Redraw to show new line
+                    saveDataToLocalStorage();
+                    rerender(); // Redraw to show new line
                 }
             }
 
@@ -586,9 +548,8 @@ rerender(); // Redraw to show new line
                 const node = findNodeById(mindmapData, nodeId);
                 if (node && node.lines) {
                     node.lines = node.lines.filter(l => l.id !== lineId);
-                    syncEditsToData();
-saveDataToLocalStorage();
-rerender(); // Redraw to remove line
+                    saveDataToLocalStorage();
+                    rerender(); // Redraw to remove line
                 }
             }
 
@@ -597,9 +558,8 @@ rerender(); // Redraw to remove line
                 if (node && node.type === 'sub-level') {
                     if (!node.customFields) node.customFields = [];
                     node.customFields.push({ id: `field-${Date.now()}`, label: 'New Field', value: '...' });
-                    syncEditsToData();
-saveDataToLocalStorage();
-rerender(); // Redraw to show new field
+                    saveDataToLocalStorage();
+                    rerender(); // Redraw to show new field
                 }
             }
 
@@ -607,9 +567,8 @@ rerender(); // Redraw to show new field
                 const node = findNodeById(mindmapData, nodeId);
                 if (node && node.customFields) {
                     node.customFields = node.customFields.filter(f => f.id !== fieldId);
-                    syncEditsToData();
-saveDataToLocalStorage();
-rerender(); // Redraw to remove field
+                    saveDataToLocalStorage();
+                    rerender(); // Redraw to remove field
                 }
             }
 
@@ -617,10 +576,8 @@ rerender(); // Redraw to remove field
                 const parentNode = findNodeById(mindmapData, parentId);
                 if (parentNode) {
                     parentNode.children = parentNode.children.filter(child => child.id !== nodeId);
-                    syncEditsToData();
-syncEditsToData();
-saveDataToLocalStorage();
-rerender();
+                    rerender();
+                    saveDataToLocalStorage();
                 }
             }
 
@@ -693,59 +650,7 @@ rerender();
                 setTimeout(drawLines, 50);
             }
             
-            
-            // Reset to default
-            document.getElementById('reset-btn').addEventListener('click', () => {
-                if (confirm('Are you sure you want to reset the mindmap?')) {
-                    localStorage.removeItem('mindmapData');
-                    location.reload();
-                }
-            });
-
-            // Export mindmap
-            document.getElementById('export-btn').addEventListener('click', () => {
-                syncEditsToData();
-                const dataStr = JSON.stringify(mindmapData, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'mindmap_export.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-
-            // Import mindmap
-            document.getElementById('import-input').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        mindmapData = data;
-                        nodeCounter = Math.max(...JSON.stringify(mindmapData).match(/node-(\d+)/g).map(s => parseInt(s.split('-')[1]))) + 1;
-                        saveDataToLocalStorage();
-                        rerender();
-                    } catch (err) {
-                        alert('Invalid JSON format.');
-                    }
-                };
-                reader.readAsText(file);
-            });
-
-            // Debounced resize
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    rerender();
-                }, 150);
-            });
-
-// Initial setup
+            // Initial setup
             initializePublicUI();
             loadDataFromLocalStorage();
             rerender();
